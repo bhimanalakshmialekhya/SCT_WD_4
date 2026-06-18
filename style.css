@@ -1,0 +1,184 @@
+:root {
+    /* Pitch Black & Deep Luxury Contrast tones */
+    --card-bg: #0d0e12;
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    
+    /* Vibrant Premium Pink Accents */
+    --accent-primary: #ec4899;     /* Deep Pink */
+    --accent-hover: #db2777;       /* Darker Pink for Hover States */
+    --success-clean: #10b981;      /* Radiant Emerald */
+    --voice-active: #ef4444;       /* Alert Red */
+    
+    /* Bold Priority Badges */
+    --low-bg: rgba(16, 185, 129, 0.15);
+    --low-text: #34d399;
+    --med-bg: rgba(245, 158, 11, 0.15);
+    --med-text: #fbbf24;
+    --high-bg: rgba(239, 68, 68, 0.15);
+    --high-text: #f87171;
+    
+    --border-light: rgba(255, 255, 255, 0.06);
+    --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    /* Smooth, infinitely looping animated dark background */
+    background: linear-gradient(-45deg, #050508, #0a0c16, #120714, #050508);
+    background-size: 400% 400%;
+    animation: gradientFlow 15s ease infinite;
+    
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+}
+
+/* Background Animation Logic */
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.todo-wrapper {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.todo-header h1 { 
+    font-size: 2.2rem; 
+    font-weight: 800; 
+    letter-spacing: -0.5px; 
+    color: var(--text-main);
+}
+.todo-header p { font-size: 0.95rem; color: var(--text-muted); margin-top: 4px; }
+
+/* Cards Styling */
+.input-card, .list-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-premium);
+    border: 1px solid var(--border-light);
+}
+
+.input-row { display: flex; gap: 10px; position: relative; }
+input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    padding-right: 48px;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    outline: none;
+    background: #161822;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+}
+input[type="text"]:focus { 
+    border-color: var(--accent-primary); 
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25); 
+    background: #1a1d29;
+}
+
+/* Compact Mic Controller */
+.btn-voice {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: transparent; border: none; color: var(--text-muted);
+    cursor: pointer; padding: 6px; display: flex; align-items: center;
+    border-radius: 50%; transition: all 0.2s;
+}
+.btn-voice:hover { color: var(--accent-primary); background: #161822; }
+.btn-voice.recording { color: #fff; background: var(--voice-active); animation: pulseGlow 1.4s infinite; }
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.voice-status { font-size: 0.8rem; color: var(--voice-active); margin-top: 8px; display: none; font-weight: 600; }
+
+.meta-row { display: flex; gap: 16px; margin-top: 16px; }
+.meta-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.meta-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+select, input[type="date"] {
+    width: 100%; padding: 11px; border: 1px solid var(--border-light);
+    border-radius: 10px; background: #161822; outline: none;
+    font-size: 0.9rem; color: var(--text-main); cursor: pointer;
+    transition: all 0.2s;
+}
+select:focus, input[type="date"]:focus { border-color: var(--accent-primary); }
+
+/* Force clean dark styles on date indicators */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+.btn-submit {
+    width: 100%; margin-top: 18px; padding: 14px; background: var(--accent-primary);
+    color: white; border: none; border-radius: 12px; font-weight: 600;
+    font-size: 0.95rem; cursor: pointer; transition: background 0.2s;
+}
+.btn-submit:hover { background: var(--accent-hover); }
+
+/* Professional Filter Buttons */
+.filter-nav { display: flex; gap: 6px; }
+.filter-btn {
+    background: transparent; border: 1px solid transparent;
+    padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+}
+.filter-btn:hover { color: var(--text-main); background: #161822; }
+.filter-btn.active { background: #161822; color: var(--accent-primary); border-color: var(--border-light); box-shadow: var(--shadow-premium); }
+
+/* Task Row Designs */
+.task-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.task-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; background: #161822; border: 1px solid var(--border-light);
+    border-radius: 12px; gap: 16px; transition: transform 0.2s;
+}
+.task-item:hover { transform: translateY(-1px); border-color: rgba(236, 72, 153, 0.4); }
+
+.item-left { display: flex; align-items: center; gap: 14px; flex: 1; cursor: pointer; }
+.check-circle { width: 22px; height: 22px; border: 2px solid #475569; border-radius: 50%; background: #0d0e12; transition: all 0.2s; }
+
+.item-info { display: flex; flex-direction: column; gap: 6px; }
+.item-text { font-size: 1rem; font-weight: 500; color: var(--text-main); }
+.item-meta { display: flex; gap: 10px; align-items: center; font-size: 0.75rem; font-weight: 600; }
+.date-badge { color: var(--text-muted); }
+
+.badge { padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: capitalize; }
+.badge.low { color: var(--low-text); background: var(--low-bg); }
+.badge.medium { color: var(--med-text); background: var(--med-bg); }
+.badge.high { color: var(--high-text); background: var(--high-bg); }
+
+/* Done States */
+.task-item.done .check-circle { background: var(--success-clean); border-color: var(--success-clean); position: relative; }
+.task-item.done .check-circle::after {
+    content: ''; position: absolute; width: 4px; height: 8px;
+    border: solid white; border-width: 0 2px 2px 0;
+    top: 3px; left: 7px; transform: rotate(45deg);
+}
+.task-item.done .item-text { text-decoration: line-through; color: #475569; }
+.task-item.done .badge { background: rgba(71, 85, 105, 0.2) !important; color: #475569 !important; }
+
+.btn-delete { background: transparent; border: none; color: #475569; cursor: pointer; transition: color 0.2s; padding: 4px; }
+.btn-delete:hover { color: #ef4444; }
+
+.empty-state { text-align: center; color: var(--text-muted); padding: 30px 0; font-size: 0.9rem; display: none; }
