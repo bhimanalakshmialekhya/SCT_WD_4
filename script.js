@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let db = JSON.parse(localStorage.getItem('PROFESSIONAL_TASKS')) || [];
     let currentFilter = 'all';
 
-    // --- INTEGRATED VOICE PARSING (SPEECH TO METADATA) ---
+    // --- SMART VOICE PARSING (SPEECH TO METADATA) ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
@@ -34,33 +34,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
         recognition.onresult = (event) => {
             let transcript = event.results[0][0].transcript.toLowerCase();
+            let originalTranscript = event.results[0][0].transcript;
             
-            // Smart Extraction Logic
+            // 1. Smart Priority Extraction
             let extractedPriority = 'medium';
             if (transcript.includes('high priority') || transcript.includes('urgent') || transcript.includes('critical')) {
                 extractedPriority = 'high';
-                transcript = transcript.replace(/high priority|urgent|critical/g, '');
             } else if (transcript.includes('low priority') || transcript.includes('easy')) {
                 extractedPriority = 'low';
-                transcript = transcript.replace(/low priority|easy/g, '');
             }
 
+            // 2. Smart Date Extraction (Today, Tomorrow, or Months)
             let today = new Date();
             let targetDate = '';
 
             if (transcript.includes('tomorrow')) {
                 today.setDate(today.getDate() + 1);
                 targetDate = today.toISOString().split('T')[0];
-                transcript = transcript.replace('tomorrow', '');
             } else if (transcript.includes('today')) {
                 targetDate = today.toISOString().split('T')[0];
-                transcript = transcript.replace('today', '');
+            } else {
+                // Parse formats like "june 24", "june 24th", "24th of june"
+                const months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+                const shortMonths = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                
+                let foundMonth = -1;
+                let foundDay = -1;
+
+                // Look for month word
+                months.forEach((m, index) => {
+                    if (transcript.includes(m)) foundMonth = index;
+                });
+                if (foundMonth === -1) {
+                    shortMonths.forEach((m, index) => {
+                        if (transcript.includes(m)) foundMonth = index;
+                    });
+                }
+
+                // Extract any 1 or 2 digit numbers for the day
+                const dayMatch = transcript.match(/\b([1-9]|[12]\d|3[01])(st|nd|rd|th)?\b/);
+                if (dayMatch) {
+                    foundDay = parseInt(dayMatch[1], 10);
+                }
+
+                // If both month and day are identified, build the standard YYYY-MM-DD string
+                if (foundMonth !== -1 && foundDay !== -1) {
+                    let currentYear = today.getFullYear();
+                    // Pad month and day with zero if single-digit
+                    let mm = String(foundMonth + 1).padStart(2, '0');
+                    let dd = String(foundDay).padStart(2, '0');
+                    targetDate = `${currentYear}-${mm}-${dd}`;
+                }
             }
 
-            // Clean up and assign to inputs dynamically
-            taskInput.value = transcript.trim().charAt(0).toUpperCase() + transcript.trim().slice(1);
+            // Clean up text field presentation
+            taskInput.value = originalTranscript.trim().charAt(0).toUpperCase() + originalTranscript.trim().slice(1);
             taskPriority.value = extractedPriority;
-            if (targetDate) taskDate.value = targetDate;
+            if (targetDate) {
+                taskDate.value = targetDate;
+            }
         };
 
         recognition.onend = () => {
