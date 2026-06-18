@@ -19,10 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.continuous = false;
         recognition.lang = 'en-US';
 
-        voiceBtn.addEventListener('click', () => {
+        voiceBtn.addEventListener('click', async () => {
             if (voiceBtn.classList.contains('recording')) {
                 recognition.stop();
             } else {
+                try {
+                    // FORCE AUDIO CAPTURE LAYER TO RAW DATA FOR AI CHIPS/VOICES
+                    await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: false,
+                            noiseSuppression: false,
+                            autoGainControl: false
+                        }
+                    });
+                } catch (err) {
+                    console.log("Microphone constraints system fallback active.");
+                }
                 recognition.start();
             }
         });
@@ -36,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let transcript = event.results[0][0].transcript.toLowerCase();
             let originalTranscript = event.results[0][0].transcript;
             
-            // 1. Smart Priority Extraction
+            // 1. Smart Priority Parser
             let extractedPriority = 'medium';
             if (transcript.includes('high priority') || transcript.includes('urgent') || transcript.includes('critical')) {
                 extractedPriority = 'high';
@@ -44,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 extractedPriority = 'low';
             }
 
-            // 2. Smart Date Extraction (Today, Tomorrow, or Months)
+            // 2. Advanced NLP Calendar Date Parser
             let today = new Date();
             let targetDate = '';
 
@@ -54,14 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (transcript.includes('today')) {
                 targetDate = today.toISOString().split('T')[0];
             } else {
-                // Parse formats like "june 24", "june 24th", "24th of june"
                 const months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
                 const shortMonths = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
                 
                 let foundMonth = -1;
                 let foundDay = -1;
 
-                // Look for month word
                 months.forEach((m, index) => {
                     if (transcript.includes(m)) foundMonth = index;
                 });
@@ -71,23 +81,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
 
-                // Extract any 1 or 2 digit numbers for the day
                 const dayMatch = transcript.match(/\b([1-9]|[12]\d|3[01])(st|nd|rd|th)?\b/);
                 if (dayMatch) {
                     foundDay = parseInt(dayMatch[1], 10);
                 }
 
-                // If both month and day are identified, build the standard YYYY-MM-DD string
                 if (foundMonth !== -1 && foundDay !== -1) {
                     let currentYear = today.getFullYear();
-                    // Pad month and day with zero if single-digit
                     let mm = String(foundMonth + 1).padStart(2, '0');
                     let dd = String(foundDay).padStart(2, '0');
                     targetDate = `${currentYear}-${mm}-${dd}`;
                 }
             }
 
-            // Clean up text field presentation
+            // Bind values to UI elements dynamically
             taskInput.value = originalTranscript.trim().charAt(0).toUpperCase() + originalTranscript.trim().slice(1);
             taskPriority.value = extractedPriority;
             if (targetDate) {
@@ -108,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         voiceBtn.style.display = 'none';
     }
 
-    // --- CORE CRUD OPERATORS ---
+    // --- DATA HANDLING ENGINE ---
     taskForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = taskInput.value.trim();
